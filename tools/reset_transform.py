@@ -6,40 +6,83 @@ def reset_transform(node, **kwargs):
     reset transform attributes
     param: node(str): node to reset, must be a transform or a joint
     param: kwargs:
-        skip(lst): list of skiped atrributes
+        translate or t(bool): reset tranlate
+        rotate or ro(bool): reset rotate
+        scale or s(bool): reset scale
+        shear or sh(bool): reset shear
+        offsetParentMatrix or opm(bool): reset offsetParentMatrix
     """
 
     # skip list
-    if 'skip' in kwargs:
-        # translate
-        if 'translate' in kwargs['skip']:
-            translate = False
-        else:
+    # translate
+    if 'translate' in kwargs:
+        if kwargs['translate']:
             translate = True
-
-        # rotate
-        if 'rotate' in kwargs['skip']:
-            rotate = False
         else:
+            translate = False
+    elif 't' in kwargs:
+        if kwargs['t']:
+            translate = True
+        else:
+            translate = False
+    else:
+        translate = True
+
+    # rotate
+    if 'rotate' in kwargs:
+        if kwargs['rotate']:
             rotate = True
-
-        # scale
-        if 'scale' in kwargs['skip']:
-            scale = False
         else:
+            rotate = False
+    elif 'ro' in kwargs:
+        if kwargs['ro']:
+            rotate = True
+        else:
+            rotate = False
+    else:
+        rotate = True
+
+    # scale
+    if 'scale' in kwargs:
+        if kwargs['scale']:
             scale = True
-
-        # shear
-        if 'shear' in kwargs['skip']:
-            shear = False
         else:
+            scale = False
+    elif 's' in kwargs:
+        if kwargs['s']:
+            scale = True
+        else:
+            scale = False
+    else:
+        scale = True
+
+    # shear
+    if 'shear' in kwargs:
+        if kwargs['shear']:
             shear = True
-
-        # offset parent matrix
-        if 'offsetParentMatrix' in kwargs['skip']:
-            offsetParentMatrix = False
         else:
+            shear = False
+    elif 'sh' in kwargs:
+        if kwargs['sh']:
+            shear = True
+        else:
+            shear = False
+    else:
+        shear = True
+
+    # offset parent matrix
+    if 'offsetParentMatrix' in kwargs:
+        if kwargs['offsetParentMatrix']:
             offsetParentMatrix = True
+        else:
+            offsetParentMatrix = False
+    elif 'opm' in kwargs:
+        if kwargs['opm']:
+            offsetParentMatrix = True
+        else:
+            offsetParentMatrix = False
+    else:
+        offsetParentMatrix = True
 
     # reset node
     # translate
