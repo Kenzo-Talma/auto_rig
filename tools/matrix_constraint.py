@@ -7,11 +7,10 @@ from connect_attr import connect_attr
 def matrix_constraint(parent=None, target=None, reset=True):
     '''
     create a mult matrix to constraint objects
-    :param kwargs:
-        parent(str): parent node
-        target(str): target node (follow)
-        reset_transform(bool): reset target transform node, True by default
-    :return:
+    :param parent(str): parent node
+    :param target(str): target node (follow)
+    :param reset_transform(bool): reset target transform node, True by default
+    :return: multMatrix node
     '''
 
     # create node
@@ -47,3 +46,9 @@ def matrix_constraint(parent=None, target=None, reset=True):
                 target+'.offsetParentMatrix',
                 f=True
             )
+
+        # return
+        return mult_matrix
+
+    else:
+        return None

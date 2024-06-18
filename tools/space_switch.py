@@ -32,7 +32,9 @@ def space_switch(
         if not isinstance(target_list, list):
             target_list = [target_list]
 
-    # def follow list
+    # def lists
+    target_ref_list = []
+    blm_list = []
     follow_list = []
 
     # parent attr list
@@ -47,6 +49,10 @@ def space_switch(
         target_ref = create_node('transform', n=target+'_ref')
         blm = create_node('blendMatrix', n=target+'_blm')
         follow = create_node('transform', n=target+'_follow')
+
+        # appen node to lists
+        target_ref_list.append(target_ref)
+        blm_list.append(blm)
         follow_list.append(follow)
 
         cmds.xform(
@@ -170,4 +176,5 @@ def space_switch(
                 for at in skip_list:
                     cmds.setAttr(f'{blm}.target[{n}].{at}Weight', 0)
 
-    return follow_list
+    # return
+    return target_ref_list, blm_list, follow_list

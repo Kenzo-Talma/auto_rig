@@ -1,5 +1,6 @@
 import maya.cmds as cmds
 import json
+from create_node import create_node
 
 
 def swap_shapes(ctrl=None, shape=None, scale=(1, 1, 1), color=0, width=2):
@@ -10,7 +11,7 @@ def swap_shapes(ctrl=None, shape=None, scale=(1, 1, 1), color=0, width=2):
     :param scale: scale of the shape
     :param color: color of the shape
     :param width: width of the shape
-    :return: None
+    :return: curve
     """
     # get shapes
     control_shape_file = open('ressources/control_shapes.json')
@@ -19,7 +20,7 @@ def swap_shapes(ctrl=None, shape=None, scale=(1, 1, 1), color=0, width=2):
 
     shape_dic = control_shape_dic[shape]
 
-    # scale
+    # apply scale
     point_list = shape_dic['p']
     p_list = []
     for point in point_list:
@@ -36,21 +37,24 @@ def swap_shapes(ctrl=None, shape=None, scale=(1, 1, 1), color=0, width=2):
     cmds.delete(cmds.listRelatives(ctrl, s=True))
 
     # create curve
-    cur = cmds.curve(
+    ctrl_curve = create_node('nurbsCurve', n=ctrl+'Shape', p=ctrl)
+
+    ctrl_curve = cmds.curve(
+        ctrl_curve,
         p=p_list,
         d=shape_dic['d'],
         per=shape_dic['periodic'],
-        k=shape_dic['k']
+        k=shape_dic['k'],
+        r=True
     )
-    sh = cmds.rename(cmds.listRelatives(cur, s=True)[0], ctrl+'Shape')
-    cmds.parent(sh, ctrl, r=True, s=True)
 
-    cmds.setAttr(sh+'.overrideEnabled', 1)
-    cmds.setAttr(sh+'.overrideColor', color)
+    cmds.setAttr(ctrl_curve+'.overrideEnabled', 1)
+    cmds.setAttr(ctrl_curve+'.overrideColor', color)
 
-    cmds.setAttr(sh+'.lineWidth', width)
+    cmds.setAttr(ctrl_curve+'.lineWidth', width)
 
     if plug:
-        cmds.connectAttr(plug[0], sh+'.v', f=True)
+        cmds.connectAttr(plug[0], ctrl_curve+'.v', f=True)
 
-    cmds.delete(cur)
+    # return
+    return ctrl_curve
