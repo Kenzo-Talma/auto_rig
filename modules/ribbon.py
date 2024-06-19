@@ -1,6 +1,6 @@
 import maya.cmds as cmds
 from tools.create_node import create_node
-from tools.connect_attr import connect_attr
+from tools.attr_lyb import connect_attr
 from tools.create_control import create_control
 
 
