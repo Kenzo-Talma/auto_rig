@@ -17,8 +17,7 @@ class Ribbon_Module:
             control_number=3,
             joint_number=5,
             periodic=False,
-            strechy=True,
-            degree=3
+            strechy=True
     ):
         # inputs
         self.switch = switch
@@ -36,7 +35,6 @@ class Ribbon_Module:
         self.joint_number = joint_number
         self.periodic = periodic
         self.strechy = strechy
-        self.degree = degree
 
         # module objects
         self.transfrom = None
@@ -57,17 +55,26 @@ class Ribbon_Module:
             surface = cmds.cylinder(
                 ax=[0, 0, 1],
                 ch=False,
-                d=self.degree,
+                d=3,
                 n=self.name+'_nbs'
             )
         else:
-            surface = cmds.nurbsPlane(
-                ch=False,
-                d=self.degree,
-                n=self.name+'_nbs',
-                u=1,
-                v=self.control_number-1
-            )
+            if self.control_number:
+                surface = cmds.nurbsPlane(
+                    ch=False,
+                    d=3,
+                    n=self.name+'_nbs',
+                    u=1,
+                    v=self.control_number-1
+                )
+            else:
+                surface = cmds.nurbsPlane(
+                    ch=False,
+                    d=3,
+                    n=self.name+'_nbs',
+                    u=1,
+                    v=len(self.space_input_list)-1
+                )
 
         # create orig shape
         surface_orig = create_node(
@@ -226,6 +233,12 @@ class Ribbon_Module:
                     group+'.offsetParentMatrix',
                     f=True
                 )
+            elif i == 0:
+                # set controller position
+                cmds.setAttr(self.control[0]+'.tranlateX', -0.5)
+            else:
+                # set controller position
+                cmds.setAttr(self.control[-1]+'.tranlateX', 0.5)
 
     def add_strech_squash(self):
         # create arc length dimension node
@@ -307,3 +320,60 @@ class Ribbon_Module:
             connect_attr(ratio_mld+'.outputX', joint+'.scaleX', f=True)
             connect_attr(sqRoot_mld+'.outputX', joint+'.scaleY', f=True)
             connect_attr(sqRoot_mld+'.outputX', joint+'.scaleZ', f=True)
+
+    def skin_surface(self):
+        if self.control_joint:
+            # create skin cluster
+            skin_list = self.control_joint+[self.surface]
+            ribbon_skin_cluster = cmds.skinCluster(
+                skin_list,
+                n=self.name+'_skc'
+            )
+
+            # set skin values
+            for n, joint in enumerate(self.control_joint):
+                if joint == self.control_joint[0]:
+                    cmds.skinPercent(
+                        ribbon_skin_cluster,
+                        f'{self.surface}.cv[{n}][0:3]',
+                        tv=[(joint, 1)],
+                        nrm=True
+                    )
+                    cmds.skinPercent(
+                        ribbon_skin_cluster,
+                        f'{self.surface}.cv[{n+1}][0:3]',
+                        tv=[
+                            (joint, 0.5),
+                            (self.control_joint[n+1], 0.5)
+                        ],
+                        nrm=True
+                    )
+                elif joint == self.control_joint[n-1]:
+                    cmds.skinPercent(
+                        ribbon_skin_cluster,
+                        f'{self.surface}.cv[{n+1}][0:3]',
+                        tv=[
+                            (joint, 0.5),
+                            (self.control_joint[n-1], 0.5)
+                        ],
+                        nrm=True
+                    )
+                    cmds.skinPercent(
+                        ribbon_skin_cluster,
+                        f'{self.surface}.cv[{n+2}][0:3]',
+                        tv=[(joint, 1)],
+                        nrm=True
+                    )
+                else:
+                    cmds.skinPercent(
+                        ribbon_skin_cluster,
+                        f'{self.surface}.cv[{n+1}][0:3]',
+                        tv=[(joint, 1)],
+                        nrm=True
+                    )
+
+            # add skincluster to list
+            if not self.other_nodes:
+                self.other_nodes = [ribbon_skin_cluster]
+            else:
+                self.other_nodes.append(ribbon_skin_cluster)
