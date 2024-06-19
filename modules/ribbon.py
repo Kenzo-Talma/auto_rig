@@ -10,17 +10,20 @@ class Ribbon_Module:
             self,
             switch,
             space_input_list,
+            data_input_list,
             name,
             side,
             compound_name=None,
             control_number=3,
             joint_number=5,
             periodic=False,
+            strechy=True,
             degree=3
     ):
         # inputs
         self.switch = switch
         self.space_input_list = space_input_list
+        self.data_input_list = data_input_list
 
         # def name
         if compound_name:
@@ -32,21 +35,24 @@ class Ribbon_Module:
         self.control_number = control_number
         self.joint_number = joint_number
         self.periodic = periodic
+        self.strechy = strechy
         self.degree = degree
 
-        # ribbon objects
+        # module objects
         self.transfrom = None
         self.joint = None
         self.shapes = None
         self.control = None
         self.other_nodes = None
 
+        # ribbon ojects
         self.surface = None
         self.surface_shape = None
-        self.build_surface = None
+        self.orig_surface = None
         self.ribbon_joint = None
+        self.control_joint = None
 
-    def built_surface(self):
+    def build_surface(self):
         if self.periodic:
             surface = cmds.cylinder(
                 ax=[0, 0, 1],
@@ -63,23 +69,23 @@ class Ribbon_Module:
                 v=self.control_number-1
             )
 
-        # create built shape
-        surface_built = create_node(
+        # create orig shape
+        surface_orig = create_node(
             'nurbsSurface',
-            n=surface.name+'built_nbs',
+            n=surface.name+'orig_nbs',
             p=surface[0]
         )
         connect_attr(
             surface[1]+'.worldSpace[0]',
-            surface_built+'.create',
+            surface_orig+'.create',
             f=True
         )
         cmds.disconnectAttr(
             surface[1]+'.worldSpace[0]',
-            surface_built+'.create'
+            surface_orig+'.create'
         )
         connect_attr(
-            surface_built+'.worldSpace[0]',
+            surface_orig+'.worldSpace[0]',
             surface[1]+'.worldSpace'
         )
 
@@ -90,11 +96,11 @@ class Ribbon_Module:
             self.transfrom.append(surface[0])
 
         if not self.surface:
-            self.surface = [surface[1], surface_built]
+            self.surface = [surface[1], surface_orig]
 
         self.surface = surface[0]
         self.surface_shape = surface[1]
-        self.build_surface = surface_built
+        self.orig_surface = surface_orig
 
     def attach_joint(self):
         # create and connect uvPin
@@ -105,7 +111,7 @@ class Ribbon_Module:
             f=True
         )
         connect_attr(
-            self.build_surface+'.local',
+            self.orig_surface+'.local',
             surface_uvpin+'.originalGeometry',
             f=True
         )
@@ -140,6 +146,14 @@ class Ribbon_Module:
     def create_control(self):
         if not self.control:
             self.control = []
+        if not self.shapes:
+            self.shapes = []
+        if not self.transform:
+            self.transform = []
+        if not self.joint:
+            self.joint = []
+        if not self.control_joint:
+            self.control_joint = []
 
         # create control
         for i in range(self.control_number):
@@ -153,6 +167,11 @@ class Ribbon_Module:
                 True
             )
             self.control.append(control)
+            self.shapes.append(curve)
+            self.transfrom.append(control)
+            self.transfrom.append(group)
+            self.joint.append(joint)
+            self.control_joint.append(joint)
 
         for i in range(self.control_number):
             # parent middle controllers
@@ -207,3 +226,84 @@ class Ribbon_Module:
                     group+'.offsetParentMatrix',
                     f=True
                 )
+
+    def add_strech_squash(self):
+        # create arc length dimension node
+        ald_u = create_node(
+            'arcLengthDimension',
+            n=self.surface.replace('nbs', 'u_adl'),
+            p=self.surface
+        )
+
+        connect_attr(
+            self.surface_shape+'.worldSpace',
+            ald_u+'.nurbsGeometry',
+            f=True
+        )
+        cmds.setAttr(ald_u+'.uParamValue', 1)
+        cmds.setAttr(ald_u+'.vparamValue', 0.5)
+
+        # create orig arc lenght dimension
+        ald_orig_u = create_node(
+            'arcLenghtDimension',
+            n=self.surface.replace('nbs', 'orig_u_adl'),
+            p=self.surface
+        )
+
+        connect_attr(
+            self.orig_surface+'.worldSpace',
+            ald_orig_u+'.nurbsGeometry',
+            f=True
+        )
+        cmds.setAttr(ald_orig_u+'.uParamValue', 1)
+        cmds.setAttr(ald_orig_u+'.vparamValue', 0.5)
+
+        # create strech and squash network
+        # create ratio multiply divide
+        ratio_mld = create_node(
+            'multiplyDivide',
+            n=self.surface.replace('nbs', 'ratio_adl')
+        )
+        connect_attr(
+            ald_u+'.arcLength',
+            ratio_mld+'.input1X',
+            f=True
+        )
+        connect_attr(
+            ald_orig_u+'.arcLength',
+            ratio_mld+'input2X',
+            f=True
+        )
+        cmds.setAttr(ratio_mld+'.operation', 2)
+
+        # create inverse multoply divide
+        inverse_mld = create_control(
+            'multiplyDivide',
+            n=self.surface.replace('nbs', 'inverse_mld')
+        )
+        connect_attr(
+            ratio_mld+'.outputX',
+            inverse_mld+'.input2X',
+            f=True
+        )
+        cmds.setAttr(inverse_mld+'.input1X', 1)
+        cmds.setAttr(inverse_mld+'.operation', 2)
+
+        # square root multiply divide
+        sqRoot_mld = create_node(
+            'multiplyDivide',
+            n=self.surface.replace('nbs', 'sqRoot_mld')
+        )
+        connect_attr(
+            inverse_mld+'.outputX',
+            sqRoot_mld+'.input1X',
+            f=True
+        )
+        cmds.setAttr(sqRoot_mld+'.input2X', 0.5)
+        cmds.setAttr(sqRoot_mld+'.operation', 3)
+
+        # connect to joints
+        for joint in self.ribbon_joint:
+            connect_attr(ratio_mld+'.outputX', joint+'.scaleX', f=True)
+            connect_attr(sqRoot_mld+'.outputX', joint+'.scaleY', f=True)
+            connect_attr(sqRoot_mld+'.outputX', joint+'.scaleZ', f=True)
