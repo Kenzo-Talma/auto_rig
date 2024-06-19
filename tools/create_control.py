@@ -3,7 +3,7 @@ import json
 from create_node import create_node
 
 
-def createcontrol(
+def create_control(
         shape=None,
         parent=None,
         scale=(1, 1, 1),
