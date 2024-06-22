@@ -17,11 +17,18 @@ class Ribbon_Module:
         self.space_input_list = space_input_list
         self.data_input_list = data_input_list
 
+        # outputs
+        self.space_output = None
+        self.data_output = None
+
         # def name
+        self.name = name
+        self.side = side
+
         if compound_name:
-            self.name = f'{side}_{compound_name}_{name}'
+            self.full_name = f'{side}_{compound_name}_{name}'
         else:
-            self.name = f'{side}_{name}'
+            self.full_name = f'{side}_{name}'
 
         # module objects
         self.transfrom = None
@@ -35,7 +42,7 @@ class Ribbon_Module:
         # create objects
         ctrl, curve, grp, offset, joint = create_control(
             shape='diamond',
-            name=self.name
+            name=self.full_name
         )
 
         # add object to list
