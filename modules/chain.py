@@ -3,6 +3,7 @@ from tools.create_node import create_node
 from tools.matrix_constraint import matrix_constraint
 from tools.create_control import create_control
 from tools.transform_lyb import match_transform
+from tools.list_lyb import append_list, extend_list
 
 
 class Ribbon_Module:
@@ -69,10 +70,7 @@ class Ribbon_Module:
             cmds.setAttr(loc+'.translateX', i)
 
             # add loc to guide list
-            if self.guide_list:
-                self.guide_list.append(loc)
-            else:
-                self.guide_list = [loc]
+            append_list(self.guide_list, loc)
 
             # parent guide
             if not i == 0:
@@ -87,26 +85,10 @@ class Ribbon_Module:
             )
 
             # add object to list
-            if self.transfrom:
-                self.transfrom.append(grp)
-                self.transfrom.append(ctrl)
-            else:
-                self.transfrom = [grp, ctrl]
-
-            if self.fk_control:
-                self.fk_control.append(ctrl)
-            else:
-                self.fk_control = [ctrl]
-
-            if self.shapes:
-                self.shapes.append(curve)
-            else:
-                self.shapes = [curve]
-
-            if self.group_list:
-                self.group_list.append(grp)
-            else:
-                self.group_list = [grp]
+            extend_list(self.transfrom, [grp, ctrl])
+            append_list(self.fk_control, ctrl)
+            append_list(self.shapes, curve)
+            append_list(self.group_list, grp)
 
             # set position
             match_transform(guide, grp)
@@ -124,26 +106,10 @@ class Ribbon_Module:
             )
 
             # add object to list
-            if self.transfrom:
-                self.transfrom.append(grp)
-                self.transfrom.append(ctrl)
-            else:
-                self.transfrom = [grp, ctrl]
-
-            if self.ik_control:
-                self.ik_control.append(ctrl)
-            else:
-                self.ik_control = [ctrl]
-
-            if self.shapes:
-                self.shapes.append(curve)
-            else:
-                self.shapes = [curve]
-
-            if self.group_list:
-                self.group_list.append(grp)
-            else:
-                self.group_list = [grp]
+            extend_list(self.transfrom, [grp, ctrl])
+            append_list(self.ik_control, ctrl)
+            append_list(self.shapes, curve)
+            append_list(self.group_list, grp)
 
             # set position
             match_transform(guide, grp)
@@ -165,21 +131,12 @@ class Ribbon_Module:
                 joint = create_node('joint', n=ctrl.replace('ctrl', 'jnt'))
 
                 # add joint to list
-                if self.joint:
-                    self.joint.append(joint)
-                else:
-                    self.joint = [joint]
+                append_list(self.joint, joint)
 
                 if control_list == self.fk_control:
-                    if self.fk_joint:
-                        self.fk_joint.append(joint)
-                    else:
-                        self.fk_joint = [joint]
+                    append_list(self.fk_joint, joint)
                 elif control_list == self.ik_control:
-                    if self.ik_joint:
-                        self.ik_joint.append(joint)
-                    else:
-                        self.ik_joint = [joint]
+                    append_list(self.ik_joint, joint)
 
                 # parent joint
                 if not n == 0:
@@ -189,7 +146,4 @@ class Ribbon_Module:
                 joint_mlm = matrix_constraint(ctrl, joint)
 
                 # add multmatrix to list
-                if self.other_nodes:
-                    self.other_nodes.append(joint_mlm)
-                else:
-                    self.other_nodes = [joint_mlm]
+                append_list(self.other_nodes, joint_mlm)

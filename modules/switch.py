@@ -1,6 +1,7 @@
 import maya.cmds as cmds
 from tools.attr_lyb import edit_attr, connect_attr
 from tools.create_control import create_control
+from tools.list_lyb import append_list, extend_list
 
 
 class Ribbon_Module:
@@ -46,9 +47,9 @@ class Ribbon_Module:
         )
 
         # add object to list
-        self.transfrom = [ctrl, grp]
-        self.shape = [curve]
-        self.control[ctrl]
+        extend_list(self.transfrom, [ctrl, grp])
+        append_list(self.shape, curve)
+        append_list(self.control, ctrl)
 
         # lock attribute
         for attr in ['translate', 'rotate', 'scale', 'v']:

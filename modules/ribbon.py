@@ -2,6 +2,7 @@ import maya.cmds as cmds
 from tools.create_node import create_node
 from tools.attr_lyb import connect_attr
 from tools.create_control import create_control
+from tools.list_lyb import append_list, extend_list
 
 
 class Ribbon_Module:
@@ -104,13 +105,7 @@ class Ribbon_Module:
         )
 
         # declare objects
-        if not self.transfrom:
-            self.transfrom = [surface[0]]
-        else:
-            self.transfrom.append(surface[0])
-
-        if not self.surface:
-            self.surface = [surface[1], surface_orig]
+        append_list(self.transform, surface[0])
 
         self.surface = surface[0]
         self.surface_shape = surface[1]
@@ -131,17 +126,9 @@ class Ribbon_Module:
         )
 
         # add uv pint to list
-        if self.other_nodes:
-            self.other_nodes.append(surface_uvpin)
-        else:
-            self.other_nodes = [surface_uvpin]
+        append_list(self.other_nodes, surface_uvpin)
 
         # create and connect joint
-        if not self.joint:
-            self.joint = []
-        if not self.ribbon_joint:
-            self.ribbon_joint = []
-
         for i in range(self.joint_number):
             # create joint
             joint = create_node('joint', n=f'{self.full_name}_{str(1)}_jnt')
@@ -160,20 +147,10 @@ class Ribbon_Module:
             )
 
             # add joint to joint list
-            self.joint.append(joint)
-            self.ribbon_joint.append(joint)
+            append_list(self.joint, joint)
+            append_list(self.ribbon_joint, joint)
 
     def create_control(self):
-        if not self.control:
-            self.control = []
-        if not self.shapes:
-            self.shapes = []
-        if not self.transform:
-            self.transform = []
-        if not self.joint:
-            self.joint = []
-        if not self.control_joint:
-            self.control_joint = []
 
         # create control
         for i in range(self.control_number):
@@ -186,12 +163,11 @@ class Ribbon_Module:
                 False,
                 True
             )
-            self.control.append(control)
-            self.shapes.append(curve)
-            self.transfrom.append(control)
-            self.transfrom.append(group)
-            self.joint.append(joint)
-            self.control_joint.append(joint)
+            append_list(self.control, control)
+            append_list(self.shapes, curve)
+            extend_list(self.transfrom, [control, group])
+            append_list(self.joint, joint)
+            append_list(self.control_joint, joint)
 
         for i in range(self.control_number):
             # parent middle controllers
@@ -254,16 +230,7 @@ class Ribbon_Module:
                 cmds.setAttr(self.control[-1]+'.tranlateX', 0.5)
 
             # add object to list
-            if self.other_nodes:
-                self.other_nodes.extend([
-                    blend_matrix,
-                    aim_matrix
-                ])
-            else:
-                self.other_nodes = [
-                    blend_matrix,
-                    aim_matrix
-                ]
+            extend_list(self.other_nodes, [blend_matrix, aim_matrix])
 
     def add_strech_squash(self):
         # create arc length dimension node
@@ -347,22 +314,13 @@ class Ribbon_Module:
             connect_attr(sqRoot_mld+'.outputX', joint+'.scaleZ', f=True)
 
         # add object to list
-        if self.other_nodes:
-            self.other_nodes.extend([
+        extend_list(self.other_nodes, [
                 ald_u,
                 ald_orig_u,
                 ratio_mld,
                 inverse_mld,
                 sqRoot_mld
             ])
-        else:
-            self.other_nodes = [
-                ald_u,
-                ald_orig_u,
-                ratio_mld,
-                inverse_mld,
-                sqRoot_mld
-            ]
 
     def skin_surface(self):
         if not self.control_joint:
@@ -437,7 +395,4 @@ class Ribbon_Module:
                 )
 
         # add skincluster to list
-        if not self.other_nodes:
-            self.other_nodes = [ribbon_skin_cluster]
-        else:
-            self.other_nodes.append(ribbon_skin_cluster)
+        append_list(self.other_nodes, ribbon_skin_cluster)

@@ -3,6 +3,7 @@ from tools.matrix_constraint import matrix_constraint
 from tools.create_node import create_node
 from tools.create_control import create_control
 from tools.transform_lyb import match_transform
+from tools.list_lyb import append_list, extend_list
 
 
 class Ribbon_Module:
@@ -52,6 +53,9 @@ class Ribbon_Module:
         self.ik_control = None
         self.fk_control = None
 
+        self.ik_joint = None
+        self.fk_joint = None
+
     def create_guides(self):
         for i in range(self.chain_length):
             # create guide
@@ -62,10 +66,7 @@ class Ribbon_Module:
             cmds.setAttr(loc+'.translateX', i)
 
             # add loc to guide list
-            if self.guide_list:
-                self.guide_list.append(loc)
-            else:
-                self.guide_list = [loc]
+            append_list(self.guide_list, loc)
 
             # parent guide
             if not i == 0:
@@ -80,15 +81,8 @@ class Ribbon_Module:
             match_transform(guide, joint)
 
             # add joint to list
-            if self.joint:
-                self.joint.append(joint)
-            else:
-                self.joint = [joint]
-
-            if self.ik_joint:
-                self.ik_joint.append(joint)
-            else:
-                self.ik_joint = [joint]
+            append_list(self.joint, joint)
+            append_list(self.ik_joint, joint)
 
             # parent joint
             if not n == 0:
@@ -130,40 +124,16 @@ class Ribbon_Module:
         cmds.poleVectorConstraint(pv_ctrl, ik_handle)
 
         # add obect to list
-        if self.transfrom:
-            self.transfrom.extend([
+        extend_list(self.transfrom, [
                 ik_ctrl,
                 ik_grp,
                 pv_ctrl,
                 pv_grp
             ])
-        else:
-            self.transfrom = [
-                ik_ctrl,
-                ik_grp,
-                pv_ctrl,
-                pv_grp
-            ]
-
-        if self.fk_control:
-            self.fk_control.extend([ik_curve, pv_ctrl])
-        else:
-            self.fk_control = [ik_curve, pv_ctrl]
-
-        if self.shapes:
-            self.shapes.extend([ik_curve, pv_curve])
-        else:
-            self.shapes = [ik_curve, pv_curve]
-
-        if self.group_list:
-            self.group_list.extend([ik_grp, pv_grp])
-        else:
-            self.group_list = [ik_grp, pv_grp]
-
-        if self.other_nodes:
-            self.other_nodes.extend([ik_handle, effector])
-        else:
-            self.other_nodes = [ik_handle, effector]
+        extend_list(self.fk_control, [ik_ctrl, pv_ctrl])
+        extend_list(self.fk_control, [ik_curve, pv_curve])
+        extend_list(self.fk_control, [ik_grp, pv_grp])
+        extend_list(self.fk_control, [ik_handle, effector])
 
     def create_fk_limb(self):
         for n, guide in enumerate(self.guide_list):
@@ -171,15 +141,8 @@ class Ribbon_Module:
             joint = create_node('joint', n=guide.replace('ctrl', 'jnt'))
 
             # add joint to list
-            if self.joint:
-                self.joint.append(joint)
-            else:
-                self.joint = [joint]
-
-            if self.fk_joint:
-                self.fk_joint.append(joint)
-            else:
-                self.fk_joint = [joint]
+            append_list(self.joint, joint)
+            append_list(self.fk_joint, joint)
 
             # parent joint
             if not n == 0:
@@ -193,37 +156,17 @@ class Ribbon_Module:
             )
 
             # add object to list
-            if self.transfrom:
-                self.transfrom.append(grp)
-                self.transfrom.append(ctrl)
-            else:
-                self.transfrom = [grp, ctrl]
-
-            if self.fk_control:
-                self.fk_control.append(ctrl)
-            else:
-                self.fk_control = [ctrl]
-
-            if self.shapes:
-                self.shapes.append(curve)
-            else:
-                self.shapes = [curve]
-
-            if self.group_list:
-                self.group_list.append(grp)
-            else:
-                self.group_list = [grp]
+            extend_list(self.transfrom, [grp, ctrl])
+            append_list(self.fk_control, ctrl)
+            append_list(self.shapes, curve)
+            append_list(self.group_list, grp)
 
             # set position
             match_transform(joint, grp)
 
             # connect joint
             joint_mlm = matrix_constraint(ctrl, joint)
-
-            if self.other_nodes:
-                self.other_nodes.append(joint_mlm)
-            else:
-                self.other_nodes = [joint_mlm]
+            append_list(self.other_nodes, joint_mlm)
 
             # parent group
             if not n == 0:
