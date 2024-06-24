@@ -46,7 +46,8 @@ def add_attr(
         default_value=None,
         max_value=None,
         min_value=None,
-        force=True
+        force=True,
+        **kwargs
 ):
     """
     create new attribute
@@ -61,6 +62,8 @@ def add_attr(
     param: max_value(float): set max vaule for the attribute
     param: min_value(float): set min attribute value
     param: force(bool): will replace existing attribute
+    param: kwargs: regulate maya's addAttr kwargs
+    return: attribute name
     """
     # test if attribute exist
     attribute = f'{node}.{long_name}'
@@ -83,7 +86,8 @@ def add_attr(
             nn=nice_name,
             dv=default_value,
             max=max_value,
-            min=min_value
+            min=min_value,
+            **kwargs
         )
     # without min value
     elif not cmds.objExist(attribute)\
@@ -96,7 +100,8 @@ def add_attr(
             ln=long_name,
             nn=nice_name,
             dv=default_value,
-            max=max_value
+            max=max_value,
+            **kwargs
         )
     # without max value
     elif not cmds.objExist(attribute)\
@@ -109,7 +114,8 @@ def add_attr(
             ln=long_name,
             nn=nice_name,
             dv=default_value,
-            min=min_value
+            min=min_value,
+            **kwargs
         )
     # without min and max value
     elif not cmds.objExist(attribute)\
@@ -120,7 +126,8 @@ def add_attr(
             at=attribute_type,
             ln=long_name,
             nn=nice_name,
-            dv=default_value
+            dv=default_value,
+            **kwargs
         )
     # without value seted
     elif not cmds.objExist(attribute)\
@@ -129,7 +136,8 @@ def add_attr(
             node,
             at=attribute_type,
             ln=long_name,
-            nn=nice_name
+            nn=nice_name,
+            **kwargs
         )
     # without nice name
     elif not cmds.objExist(attribute)\
@@ -142,7 +150,8 @@ def add_attr(
             ln=long_name,
             dv=default_value,
             max=max_value,
-            min=min_value
+            min=min_value,
+            **kwargs
         )
     # without nice name and min value
     elif not cmds.objExist(attribute)\
@@ -153,7 +162,8 @@ def add_attr(
             at=attribute_type,
             ln=long_name,
             dv=default_value,
-            max=max_value
+            max=max_value,
+            **kwargs
         )
     # without nice name and max value
     elif not cmds.objExist(attribute)\
@@ -164,14 +174,16 @@ def add_attr(
             at=attribute_type,
             ln=long_name,
             dv=default_value,
-            min=min_value
+            min=min_value,
+            **kwargs
         )
     # without extra parameters
     elif not cmds.objExist(attribute):
         cmds.addAttr(
             node,
             at=attribute_type,
-            ln=long_name
+            ln=long_name,
+            **kwargs
         )
 
     # set attr parameters
@@ -181,6 +193,8 @@ def add_attr(
         channel_box=channel_box,
         locked=locked
     )
+
+    return f'{node}.{long_name}'
 
 
 def edit_attr(
