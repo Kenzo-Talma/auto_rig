@@ -69,12 +69,12 @@ def add_attr(
     attribute = f'{node}.{long_name}'
 
     # delete attribute
-    if cmds.objectExist(attribute) and force:
+    if cmds.objExists(attribute) and force:
         remove_attr(attribute)
 
     # create attribute
     # witch all parameters
-    if not cmds.objExist(attribute)\
+    if not cmds.objExists(attribute)\
             and nice_name\
             and default_value\
             and max_value\
@@ -90,7 +90,7 @@ def add_attr(
             **kwargs
         )
     # without min value
-    elif not cmds.objExist(attribute)\
+    elif not cmds.objExists(attribute)\
             and nice_name\
             and default_value\
             and max_value:
@@ -104,7 +104,7 @@ def add_attr(
             **kwargs
         )
     # without max value
-    elif not cmds.objExist(attribute)\
+    elif not cmds.objExists(attribute)\
             and nice_name\
             and default_value\
             and min_value:
@@ -118,7 +118,7 @@ def add_attr(
             **kwargs
         )
     # without min and max value
-    elif not cmds.objExist(attribute)\
+    elif not cmds.objExists(attribute)\
             and nice_name\
             and default_value:
         cmds.addAttr(
@@ -130,7 +130,7 @@ def add_attr(
             **kwargs
         )
     # without value seted
-    elif not cmds.objExist(attribute)\
+    elif not cmds.objExists(attribute)\
             and nice_name:
         cmds.addAttr(
             node,
@@ -140,7 +140,7 @@ def add_attr(
             **kwargs
         )
     # without nice name
-    elif not cmds.objExist(attribute)\
+    elif not cmds.objExists(attribute)\
             and default_value\
             and max_value\
             and min_value:
@@ -154,7 +154,7 @@ def add_attr(
             **kwargs
         )
     # without nice name and min value
-    elif not cmds.objExist(attribute)\
+    elif not cmds.objExists(attribute)\
             and default_value\
             and max_value:
         cmds.addAttr(
@@ -166,7 +166,7 @@ def add_attr(
             **kwargs
         )
     # without nice name and max value
-    elif not cmds.objExist(attribute)\
+    elif not cmds.objExists(attribute)\
             and default_value\
             and min_value:
         cmds.addAttr(
@@ -178,7 +178,7 @@ def add_attr(
             **kwargs
         )
     # without extra parameters
-    elif not cmds.objExist(attribute):
+    elif not cmds.objExists(attribute):
         cmds.addAttr(
             node,
             at=attribute_type,
@@ -211,7 +211,7 @@ def edit_attr(
     param: channel_box(bool): make the attribute displayed in the channel box
     """
     if attribute_name:
-        if cmds.objExist(attribute_name):
+        if cmds.objExists(attribute_name):
             cmds.setAttr(
                 attribute_name,
                 k=keyable,
@@ -238,5 +238,5 @@ def remove_attr(
     elif node and short_name:
         cmds.deleteAttr(node, at=long_name)
     elif attribute_name:
-        if cmds.objExist(attribute_name):
-            cmds.deletaAttr(attribute_name)
+        if cmds.objExists(attribute_name):
+            cmds.deleteAttr(attribute_name)
