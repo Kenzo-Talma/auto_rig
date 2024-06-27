@@ -6,7 +6,7 @@ from tools.transform_lyb import match_transform
 from tools.list_lyb import append_list, extend_list
 
 
-class Ribbon_Module:
+class Limb_Module:
     # init method
     def __init__(
             self,
@@ -66,7 +66,7 @@ class Ribbon_Module:
             cmds.setAttr(loc+'.translateX', i)
 
             # add loc to guide list
-            append_list(self.guide_list, loc)
+            self.guide_list = append_list(self.guide_list, loc)
 
             # parent guide
             if not i == 0:
@@ -81,8 +81,8 @@ class Ribbon_Module:
             match_transform(guide, joint)
 
             # add joint to list
-            append_list(self.joint, joint)
-            append_list(self.ik_joint, joint)
+            self.joint = append_list(self.joint, joint)
+            self.ik_joint = append_list(self.ik_joint, joint)
 
             # parent joint
             if not n == 0:
@@ -124,25 +124,30 @@ class Ribbon_Module:
         cmds.poleVectorConstraint(pv_ctrl, ik_handle)
 
         # add obect to list
-        extend_list(self.transfrom, [
+        self.transfrom = extend_list(self.transfrom, [
                 ik_ctrl,
                 ik_grp,
                 pv_ctrl,
                 pv_grp
             ])
-        extend_list(self.fk_control, [ik_ctrl, pv_ctrl])
-        extend_list(self.fk_control, [ik_curve, pv_curve])
-        extend_list(self.fk_control, [ik_grp, pv_grp])
-        extend_list(self.fk_control, [ik_handle, effector])
+        self.ik_control = extend_list(self.ik_control, [ik_ctrl, pv_ctrl])
+        self.shapes = extend_list(self.shapes, [ik_curve, pv_curve])
+        self.transfrom = extend_list(self.transfrom, [
+            ik_grp,
+            pv_grp,
+            ik_ctrl,
+            pv_ctrl
+        ])
+        self.other_nodes = extend_list(self.other_nodes, [ik_handle, effector])
 
     def create_fk_limb(self):
         for n, guide in enumerate(self.guide_list):
             # create joint
-            joint = create_node('joint', n=guide.replace('ctrl', 'jnt'))
+            joint = create_node('joint', n=guide.replace('loc', 'jnt'))
 
             # add joint to list
-            append_list(self.joint, joint)
-            append_list(self.fk_joint, joint)
+            self.joint = append_list(self.joint, joint)
+            self.fk_joint = append_list(self.fk_joint, joint)
 
             # parent joint
             if not n == 0:
@@ -156,17 +161,17 @@ class Ribbon_Module:
             )
 
             # add object to list
-            extend_list(self.transfrom, [grp, ctrl])
-            append_list(self.fk_control, ctrl)
-            append_list(self.shapes, curve)
-            append_list(self.group_list, grp)
+            self.transfrom = extend_list(self.transfrom, [grp, ctrl])
+            self.fk_control = append_list(self.fk_control, ctrl)
+            self.shapes = append_list(self.shapes, curve)
+            self.group_list = append_list(self.group_list, grp)
 
             # set position
             match_transform(joint, grp)
 
             # connect joint
             joint_mlm = matrix_constraint(ctrl, joint)
-            append_list(self.other_nodes, joint_mlm)
+            self.other_nodes = append_list(self.other_nodes, joint_mlm)
 
             # parent group
             if not n == 0:

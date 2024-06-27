@@ -6,7 +6,7 @@ from tools.transform_lyb import match_transform
 from tools.list_lyb import append_list, extend_list
 
 
-class Ribbon_Module:
+class Chain_Module:
     # init method
     def __init__(
             self,
@@ -59,6 +59,7 @@ class Ribbon_Module:
 
         self.ik_joint = None
         self.fk_joint = None
+        self.main_joint = None
 
     def create_guides(self):
         for i in range(self.chain_length):
@@ -70,7 +71,7 @@ class Ribbon_Module:
             cmds.setAttr(loc+'.translateX', i)
 
             # add loc to guide list
-            append_list(self.guide_list, loc)
+            self.guide_list = append_list(self.guide_list, loc)
 
             # parent guide
             if not i == 0:
@@ -85,10 +86,10 @@ class Ribbon_Module:
             )
 
             # add object to list
-            extend_list(self.transfrom, [grp, ctrl])
-            append_list(self.fk_control, ctrl)
-            append_list(self.shapes, curve)
-            append_list(self.group_list, grp)
+            self.transfrom = extend_list(self.transfrom, [grp, ctrl])
+            self.fk_control = append_list(self.fk_control, ctrl)
+            self.shapes = append_list(self.shapes, curve)
+            self.group_list = append_list(self.group_list, grp)
 
             # set position
             match_transform(guide, grp)
@@ -106,10 +107,10 @@ class Ribbon_Module:
             )
 
             # add object to list
-            extend_list(self.transfrom, [grp, ctrl])
-            append_list(self.ik_control, ctrl)
-            append_list(self.shapes, curve)
-            append_list(self.group_list, grp)
+            self.transfrom = extend_list(self.transfrom, [grp, ctrl])
+            self.ik_control = append_list(self.ik_control, ctrl)
+            self.shapes = append_list(self.shapes, curve)
+            self.group_list = append_list(self.group_list, grp)
 
             # set position
             match_transform(guide, grp)
@@ -131,19 +132,41 @@ class Ribbon_Module:
                 joint = create_node('joint', n=ctrl.replace('ctrl', 'jnt'))
 
                 # add joint to list
-                append_list(self.joint, joint)
+                self.joint = append_list(self.joint, joint)
 
                 if control_list == self.fk_control:
-                    append_list(self.fk_joint, joint)
+                    self.fk_joint = append_list(self.fk_joint, joint)
                 elif control_list == self.ik_control:
-                    append_list(self.ik_joint, joint)
+                    self.ik_joint = append_list(self.ik_joint, joint)
 
                 # parent joint
                 if not n == 0:
-                    cmds.parent(joint, self.joint[n-1])
+                    if control_list == self.fk_control:
+                        cmds.parent(joint, self.fk_joint[n-1])
+                    elif control_list == self.ik_control:
+                        cmds.parent(joint, self.ik_joint[n-1])
 
                 # connect joint
                 joint_mlm = matrix_constraint(ctrl, joint)
 
                 # add multmatrix to list
-                append_list(self.other_nodes, joint_mlm)
+                self.other_nodes = append_list(self.other_nodes, joint_mlm)
+
+    def create_ik_fk_switch(self):
+        # create main limb
+        for guide in self.guide_list:
+            # create joint
+            joint = create_node('joint', n=guide.replace('loc', 'main_jnt'))
+
+            # add joint to list
+            self.joint = append_list(self.joint, joint)
+            self.main_joint = append_list(self.main_joint, joint)
+
+            # add switch
+            self.switch.ik_fk_switch(
+                self.main_joint,
+                self.ik_joint,
+                self.fk_joint,
+                self.ik_control,
+                self.fk_control
+            )

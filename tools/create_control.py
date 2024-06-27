@@ -1,6 +1,7 @@
 import maya.cmds as cmds
 import json
-from create_node import create_node
+from .create_node import create_node
+from pathlib import Path
 
 
 def create_control(
@@ -28,7 +29,11 @@ def create_control(
         joint
     """
     # get shapes
-    control_shape_file = open('ressources/control_shapes.json')
+    shape_base_path = str((Path(__file__).parent)).replace('\\', '/')
+    shape_file_path = shape_base_path.rpartition('/')[0] +\
+        "/ressources/control_shapes.json"
+
+    control_shape_file = open(Path(shape_file_path))
 
     control_shape_dic = json.load(control_shape_file)
 
@@ -57,16 +62,16 @@ def create_control(
         ctrl_offset = None
 
     # add curve
-    ctrl_curve = create_node('nurbsCurve', n=ctrl+'Shape', p=ctrl)
-
-    ctrl_curve = cmds.curve(
-        ctrl_curve,
+    temp = cmds.curve(
         p=p_list,
         d=shape_dic['d'],
         per=shape_dic['periodic'],
-        k=shape_dic['k'],
-        r=True
+        k=shape_dic['k']
     )
+
+    ctrl_curve = cmds.rename(temp.replace('1', 'Shape1'), name+'_ctrlShape')
+    cmds.parent(ctrl_curve, ctrl, s=True, r=True)
+    cmds.delete(temp)
 
     # set curve width
     cmds.setAttr(ctrl_curve+'.lineWidth', width)

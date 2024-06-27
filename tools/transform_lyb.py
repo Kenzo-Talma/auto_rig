@@ -96,7 +96,7 @@ def match_transform(ref, target, **kwargs):
         ) and translate:
             cmds.xform(
                 target,
-                t=cmds.xform(ref, q=True, t=target, ws=True),
+                t=cmds.xform(ref, q=True, t=True, ws=True),
                 ws=True
             )
 
@@ -108,7 +108,7 @@ def match_transform(ref, target, **kwargs):
         ) and rotate:
             cmds.xform(
                 target,
-                ro=cmds.xform(ref, q=True, ro=target, ws=True),
+                ro=cmds.xform(ref, q=True, ro=True, ws=True),
                 ws=True
             )
 
@@ -120,7 +120,7 @@ def match_transform(ref, target, **kwargs):
         ) and scale:
             cmds.xform(
                 target,
-                s=cmds.xform(ref, q=True, s=target, ws=True),
+                s=cmds.xform(ref, q=True, s=True, ws=True),
                 ws=True
             )
 
@@ -132,7 +132,7 @@ def match_transform(ref, target, **kwargs):
         ) and shear:
             cmds.xform(
                 target,
-                sh=cmds.xform(ref, q=True, sh=target, ws=True),
+                sh=cmds.xform(ref, q=True, sh=True, ws=True),
                 ws=True
             )
 

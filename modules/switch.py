@@ -5,7 +5,7 @@ from tools.list_lyb import append_list, extend_list
 from tools.create_node import create_node
 
 
-class Ribbon_Module:
+class Switch_Module:
     # init method
     def __init__(
             self,
@@ -48,9 +48,9 @@ class Ribbon_Module:
         )
 
         # add object to list
-        extend_list(self.transfrom, [ctrl, grp])
-        append_list(self.shapes, curve)
-        append_list(self.control, ctrl)
+        self.transfrom = extend_list(self.transfrom, [ctrl, grp])
+        self.shapes = append_list(self.shapes, curve)
+        self.control = append_list(self.control, ctrl)
 
         # lock attribute
         for attr in ['translate', 'rotate', 'scale', 'v']:
@@ -139,15 +139,15 @@ class Ribbon_Module:
     ):
         # create attribute
         ik_fk_attr = add_attr(
-            self.control[0],
+            node=self.control[0],
             long_name='switch_ik_fk',
             attribute_type='enum',
-            enumNames='ik:fk'
+            enumName='ik:fk'
         )
         # create inverse node
         ik_fk_rev = create_node('reverse', n=self.full_name+'_ik_fk_rev')
-        connect_attr(ik_fk_attr, ik_fk_rev+'.input1X', f=True)
-        ik_fk_rev_attr = ik_fk_rev+'.input1X'
+        connect_attr(ik_fk_attr, ik_fk_rev+'.inputX', f=True)
+        ik_fk_rev_attr = ik_fk_rev+'.outputX'
 
         # connect ik fk and main
         for main, ik, fk in zip(main_joint_list, ik_joint_list, fk_joint_list):
@@ -161,7 +161,7 @@ class Ribbon_Module:
         for ctrl in ik_ctrl_list:
             for shape in cmds.listRelatives(ctrl, s=True):
                 connect_attr(
-                    ik_fk_rev_attr,
+                    ik_fk_attr,
                     shape+'.v',
                     f=True
                 )

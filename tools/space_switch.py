@@ -1,7 +1,7 @@
 import maya.cmds as cmds
-from create_node import create_node
-from attr_lyb import connect_attr
-from transform_lyb import reset_transform
+from .create_node import create_node
+from .attr_lyb import connect_attr
+from .transform_lyb import reset_transform
 
 
 def space_switch(

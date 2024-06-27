@@ -1,6 +1,6 @@
 import maya.cmds as cmds
 import json
-from create_node import create_node
+from .create_node import create_node
 
 
 def swap_shapes(ctrl=None, shape=None, scale=(1, 1, 1), color=0, width=2):

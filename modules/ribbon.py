@@ -105,7 +105,7 @@ class Ribbon_Module:
         )
 
         # declare objects
-        append_list(self.transform, surface[0])
+        self.transfrom = append_list(self.transform, surface[0])
 
         self.surface = surface[0]
         self.surface_shape = surface[1]
@@ -126,7 +126,7 @@ class Ribbon_Module:
         )
 
         # add uv pint to list
-        append_list(self.other_nodes, surface_uvpin)
+        self.other_nodes = append_list(self.other_nodes, surface_uvpin)
 
         # create and connect joint
         for i in range(self.joint_number):
@@ -147,8 +147,8 @@ class Ribbon_Module:
             )
 
             # add joint to joint list
-            append_list(self.joint, joint)
-            append_list(self.ribbon_joint, joint)
+            self.joint = append_list(self.joint, joint)
+            self.ribbon_joint = append_list(self.ribbon_joint, joint)
 
     def create_control(self):
 
@@ -163,11 +163,11 @@ class Ribbon_Module:
                 False,
                 True
             )
-            append_list(self.control, control)
-            append_list(self.shapes, curve)
-            extend_list(self.transfrom, [control, group])
-            append_list(self.joint, joint)
-            append_list(self.control_joint, joint)
+            self.control = append_list(self.control, control)
+            self.shapes = append_list(self.shapes, curve)
+            self.transfrom = extend_list(self.transfrom, [control, group])
+            self.joint = append_list(self.joint, joint)
+            self.control = append_list(self.control_joint, joint)
 
         for i in range(self.control_number):
             # parent middle controllers
@@ -230,7 +230,10 @@ class Ribbon_Module:
                 cmds.setAttr(self.control[-1]+'.tranlateX', 0.5)
 
             # add object to list
-            extend_list(self.other_nodes, [blend_matrix, aim_matrix])
+            self.other_nodes = extend_list(
+                self.other_nodes,
+                [blend_matrix, aim_matrix]
+            )
 
     def add_strech_squash(self):
         # create arc length dimension node
@@ -314,7 +317,7 @@ class Ribbon_Module:
             connect_attr(sqRoot_mld+'.outputX', joint+'.scaleZ', f=True)
 
         # add object to list
-        extend_list(self.other_nodes, [
+        self.other_nodes = extend_list(self.other_nodes, [
                 ald_u,
                 ald_orig_u,
                 ratio_mld,
@@ -395,4 +398,4 @@ class Ribbon_Module:
                 )
 
         # add skincluster to list
-        append_list(self.other_nodes, ribbon_skin_cluster)
+        self.other_nodes = append_list(self.other_nodes, ribbon_skin_cluster)
