@@ -173,3 +173,34 @@ class Switch_Module:
                     shape+'.v',
                     f=True
                 )
+
+    def create_attr(
+        self,
+        long_name,
+        nice_name=None,
+        attribute_type='float',
+        keyable=True,
+        locked=False,
+        channel_box=True,
+        default_value=None,
+        max_value=None,
+        min_value=None,
+        force=True,
+        **kwargs
+    ):
+        attribute = add_attr(
+            node=self.full_name,
+            long_name=long_name,
+            nice_name=nice_name,
+            attribute_type=attribute_type,
+            keyable=keyable,
+            locked=locked,
+            channel_box=channel_box,
+            default_value=default_value,
+            max_value=max_value,
+            min_value=min_value,
+            force=force,
+            **kwargs
+        )
+
+        return attribute
