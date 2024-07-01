@@ -5,7 +5,7 @@ from tools.attr_lib import connect_attr
 from tools.create_control import create_control
 from tools.matrix_constraint import matrix_constraint
 from tools.transform_lib import match_transform
-from tools.joint_lib import orient_joint
+from tools.joint_lib import simple_joint_chain
 
 
 class Foot_Module:
@@ -98,67 +98,25 @@ class Foot_Module:
                 cmds.parent(loc, guide_list[n-1])
 
     def create_joint(self):
-        # create joint loop
-        for n, guides in enumerate(self.fk_guide_list):
-            # ik joint
-            if self.ik:
-                # create joint
-                ik_joint = create_node(
-                    'joint',
-                    n=guides.replace('loc', 'ik_jnt')
-                )
-
-                # place joint
-                match_transform(ref=guides, target=ik_joint)
-
-                # add joint to list
-                self.ik_joint = append_list(self.ik_joint, ik_joint)
-
-                # parent joint
-                if not n == 0:
-                    cmds.parent(ik_joint, self.ik_joint[n-1])
-
-            # fk joint
-            if self.fk:
-                # create joint
-                fk_joint = create_node(
-                    'joint',
-                    n=guides.replace('loc', 'fk_jnt')
-                )
-
-                # place joint
-                match_transform(ref=guides, target=fk_joint)
-
-                # add joint to list
-                self.fk_joint = append_list(self.fk_joint, fk_joint)
-
-                # parent joint
-                if not n == 0:
-                    cmds.parent(fk_joint, self.fk_joint[n-1])
-
-            # create joint
-            main_joint = create_node(
-                'joint',
-                n=guides.replace('loc', 'main_jnt')
+        # ik joint
+        if self.ik:
+            self.ik_joint = simple_joint_chain(
+                self.fk_guide_list,
+                extention=['loc', 'ik_jnt']
             )
 
-            # place joint
-            match_transform(ref=guides, target=main_joint)
-
-            # add joint to list
-            self.main_joint = append_list(self.main_joint, main_joint)
-
-            # parent joint
-            if not n == 0:
-                cmds.parent(main_joint, self.main_joint[n-1])
-
-        # orient joint
-        if self.ik:
-            orient_joint(self.ik_joint)
+        # fk joint
         if self.fk:
-            orient_joint(self.fk_joint)
+            self.fk_joint = simple_joint_chain(
+                self.fk_guide_list,
+                extention=['loc', 'fk_jnt']
+            )
 
-        orient_joint(self.main_joint)
+        # main list
+        self.main_joint = simple_joint_chain(
+                self.fk_guide_list,
+                extention=['loc', 'main_jnt']
+            )
 
     def create_ik_foot(self):
         # create object

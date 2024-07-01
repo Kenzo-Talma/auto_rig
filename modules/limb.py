@@ -4,7 +4,7 @@ from tools.create_node import create_node
 from tools.create_control import create_control
 from tools.transform_lib import match_transform
 from tools.list_lib import append_list, extend_list
-from tools.joint_lib import orient_joint
+from tools.joint_lib import simple_joint_chain
 
 
 class Limb_Module:
@@ -74,23 +74,15 @@ class Limb_Module:
                 cmds.parent(loc, self.guide_list[i-1])
 
     def create_ik_limb(self):
-        for n, guide in enumerate(self.guide_list):
-            # create joint
-            joint = create_node('joint', n=guide.replace('loc', 'ik')+'_jnt')
+        # create joint list
+        ik_joint_list = simple_joint_chain(
+            self.guide_list,
+            extention=['loc', 'ik_chain']
+        )
 
-            # set position
-            match_transform(guide, joint)
-
-            # add joint to list
-            self.joint = append_list(self.joint, joint)
-            self.ik_joint = append_list(self.ik_joint, joint)
-
-            # parent joint
-            if not n == 0:
-                cmds.parent(joint, self.ik_joint[n-1])
-
-        # orient joint
-        orient_joint(self.ik_joint)
+        # add joints to list
+        self.joint = extend_list(self.joint, ik_joint_list)
+        self.ik_joint = extend_list(self.ik_joint, ik_joint_list)
 
         # ik handle
         ik_handle, temp = cmds.ikHandle(
@@ -138,23 +130,21 @@ class Limb_Module:
         self.other_nodes = extend_list(self.other_nodes, [ik_handle, effector])
 
     def create_fk_limb(self):
-        for n, guide in enumerate(self.guide_list):
-            # create joint
-            joint = create_node('joint', n=guide.replace('loc', 'jnt'))
+        # create joint chain
+        fk_joint_list = simple_joint_chain(
+            self.guide_list,
+            extention=['loc', 'fk_jnt']
+        )
 
-            # add joint to list
-            self.joint = append_list(self.joint, joint)
-            self.fk_joint = append_list(self.fk_joint, joint)
-
-            # parent joint
-            if not n == 0:
-                cmds.parent(joint, self.joint[n-1])
+        # add joint to list
+        self.joint = extend_list(self.joint, fk_joint_list)
+        self.fk_joint = extend_list(self.fk_joint, fk_joint_list)
 
         for n, joint in enumerate(self.fk_joint):
             # create control
             ctrl, curve, grp, offset, joint = create_control(
                 shape='circleX',
-                name=guide.replace('loc', 'fk')
+                name=joint.rpartition('_')[0]
             )
 
             # set position

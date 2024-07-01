@@ -109,7 +109,10 @@ class Foot_Module:
 
     def create_ik_chain(self, guide_list):
         # create joint chain
-        ik_joint_list = simple_joint_chain(guide_list)
+        ik_joint_list = simple_joint_chain(
+            guide_list,
+            extention=['loc', 'ik_jnt']
+        )
 
         # add joint to list
         self.ik_joint = extend_list(self.ik_joint, ik_joint_list)
@@ -151,7 +154,10 @@ class Foot_Module:
         fk_ctrl_list = None
 
         # create joint chain
-        main_joint_list = simple_joint_chain(guide_list)
+        main_joint_list = simple_joint_chain(
+            guide_list,
+            extention=['loc', 'main_jnt']
+        )
 
         # add joint to list
         self.main_joint = extend_list(self.main_joint, main_joint_list)

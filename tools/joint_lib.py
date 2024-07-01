@@ -20,6 +20,7 @@ def orient_joint(joint_list, axis_order='xzy', secondary_axis='zup'):
 
 def simple_joint_chain(
         guide_list,
+        extention=['loc', 'jnt'],
         is_joint_orient=True,
         axis_order='xzy',
         secondary_axis='zup'
@@ -27,7 +28,10 @@ def simple_joint_chain(
     joint_list = None
     for n, guide in enumerate(guide_list):
         # create joint
-        joint = create_node('joint', n=guide.replace('loc', 'main_jnt'))
+        joint = create_node(
+            'joint',
+            n=guide.replace(extention[0], extention[1])
+        )
 
         # set joint position
         match_transform(ref=guide, target=joint)
