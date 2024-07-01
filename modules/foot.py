@@ -61,7 +61,7 @@ class Foot_Module:
             f'{self.full_name}_side_in_loc': (0, 0, 0),
             f'{self.full_name}_side_out_loc': (0, 0, 0)
         }
-        self.fk_guide_dic = [
+        self.fk_guide_list = [
             f'{self.full_name}_1_loc',
             f'{self.full_name}_2_loc',
             f'{self.full_name}_3_loc'
@@ -94,6 +94,41 @@ class Foot_Module:
             # parent guide
             if not n == 0:
                 cmds.parent(loc, self.guide_list[n-1])
+
+    def create_joint(self):
+        # create joint loop
+        for n, guides in enumerate(self.fk_guide_list):
+            # ik joint
+            if self.ik:
+                # create joint
+                ik_joint = create_node(
+                    'joint',
+                    n=guides.replace('loc', 'ik_jnt')
+                )
+
+                # add joint to list
+                self.ik_joint = append_list(self.ik_joint, ik_joint)
+
+                # parent joint
+                if not n == 0:
+                    cmds.parent(ik_joint, self.ik_joint[n-1])
+
+            # fk joint
+            if self.fk:
+                # create joint
+                fk_joint = create_node(
+                    'joint',
+                    n=guides.replace('loc', 'fk_jnt')
+                )
+
+                # add joint to list
+                self.fk_joint = append_list(self.fk_joint, fk_joint)
+
+                # parent joint
+                if not n == 0:
+                    cmds.parent(fk_joint, self.fk_joint[n-1])
+
+        # orient ik joint
 
     def create_ik_foot(self):
         # create object
