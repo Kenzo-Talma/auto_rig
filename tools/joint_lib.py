@@ -46,6 +46,6 @@ def simple_joint_chain(
             axis_order,
             secondary_axis
         )
-    
+
     # return
     return joint_list
