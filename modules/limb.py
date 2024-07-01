@@ -2,8 +2,9 @@ import maya.cmds as cmds
 from tools.matrix_constraint import matrix_constraint
 from tools.create_node import create_node
 from tools.create_control import create_control
-from tools.transform_lyb import match_transform
-from tools.list_lyb import append_list, extend_list
+from tools.transform_lib import match_transform
+from tools.list_lib import append_list, extend_list
+from tools.joint_lib import orient_joint
 
 
 class Limb_Module:
@@ -89,11 +90,7 @@ class Limb_Module:
                 cmds.parent(joint, self.ik_joint[n-1])
 
         # orient joint
-        for joint in self.ik_joint:
-            if cmds.listRelatives(joint, c=True, type='joint'):
-                cmds.joint(joint, e=True, oj='xzy', sao='zup', zso=True)
-            else:
-                cmds.joint(joint, e=True, oj='none', zso=True)
+        orient_joint(self.ik_joint)
 
         # ik handle
         ik_handle, temp = cmds.ikHandle(
@@ -159,6 +156,9 @@ class Limb_Module:
                 shape='circleX',
                 name=guide.replace('loc', 'fk')
             )
+
+            # set position
+            match_transform(ref=joint, target=grp)
 
             # add object to list
             self.transfrom = extend_list(self.transfrom, [grp, ctrl])

@@ -1,7 +1,7 @@
 import maya.cmds as cmds
-from tools.attr_lyb import edit_attr, connect_attr, add_attr
+from tools.attr_lib import edit_attr, connect_attr, add_attr
 from tools.create_control import create_control
-from tools.list_lyb import append_list, extend_list
+from tools.list_lib import append_list, extend_list
 from tools.create_node import create_node
 
 

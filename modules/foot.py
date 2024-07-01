@@ -1,10 +1,11 @@
 import maya.cmds as cmds
 from tools.create_node import create_node
-from tools.list_lyb import append_list, extend_list
-from tools.attr_lyb import connect_attr
+from tools.list_lib import append_list, extend_list
+from tools.attr_lib import connect_attr
 from tools.create_control import create_control
 from tools.matrix_constraint import matrix_constraint
-from tools.transform_lyb import match_transform
+from tools.transform_lib import match_transform
+from tools.joint_lib import orient_joint
 
 
 class Foot_Module:
@@ -80,6 +81,7 @@ class Foot_Module:
         self.main_joint = None
 
     def create_guides(self):
+        guide_list = []
         for n, loc in enumerate(self.ik_guide_dic):
             # create guide
             loc = create_node(
@@ -89,11 +91,11 @@ class Foot_Module:
             cmds.setAttr(loc+'.translate', self.ik_guide_dic[loc])
 
             # add loc to guide list
-            self.guide_list = append_list(self.guide_list, loc)
+            guide_list = append_list(guide_list, loc)
 
             # parent guide
             if not n == 0:
-                cmds.parent(loc, self.guide_list[n-1])
+                cmds.parent(loc, guide_list[n-1])
 
     def create_joint(self):
         # create joint loop
@@ -105,6 +107,9 @@ class Foot_Module:
                     'joint',
                     n=guides.replace('loc', 'ik_jnt')
                 )
+
+                # place joint
+                match_transform(ref=guides, target=ik_joint)
 
                 # add joint to list
                 self.ik_joint = append_list(self.ik_joint, ik_joint)
@@ -121,6 +126,9 @@ class Foot_Module:
                     n=guides.replace('loc', 'fk_jnt')
                 )
 
+                # place joint
+                match_transform(ref=guides, target=fk_joint)
+
                 # add joint to list
                 self.fk_joint = append_list(self.fk_joint, fk_joint)
 
@@ -128,7 +136,29 @@ class Foot_Module:
                 if not n == 0:
                     cmds.parent(fk_joint, self.fk_joint[n-1])
 
-        # orient ik joint
+            # create joint
+            main_joint = create_node(
+                'joint',
+                n=guides.replace('loc', 'main_jnt')
+            )
+
+            # place joint
+            match_transform(ref=guides, target=main_joint)
+
+            # add joint to list
+            self.main_joint = append_list(self.main_joint, main_joint)
+
+            # parent joint
+            if not n == 0:
+                cmds.parent(main_joint, self.main_joint[n-1])
+
+        # orient joint
+        if self.ik:
+            orient_joint(self.ik_joint)
+        if self.fk:
+            orient_joint(self.fk_joint)
+
+        orient_joint(self.main_joint)
 
     def create_ik_foot(self):
         # create object
@@ -140,33 +170,11 @@ class Foot_Module:
                 offset=True
             )
 
-            # create joint
-            if not n > 3:
-                joint = create_node('joint', n=loc.replace('loc', 'ik_jnt'))
-
-                # add joint to list
-                self.joint = append_list(joint)
-                self.ik_joint(joint)
-
-                # parent joint
-                if not n == 0:
-                    cmds.parent(joint, self.ik_joint[n-1])
-
             # add object to list
             self.transfrom = extend_list(self.transfrom, [grp, ctrl, offset])
             self.ik_control = append_list(self.ik_control, ctrl)
             self.shapes = append_list(self.shapes, curve)
             self.ik_group = append_list(self.ik_group, [grp, offset])
-
-        # place and orient joint
-        for joint, loc in zip(self.ik_joint, self.guide_list):
-            match_transform(ref=loc, target=joint)
-
-        for joint in self.ik_joint:
-            if cmds.listRelatives(joint, c=True, type='joint'):
-                cmds.joint(joint, e=True, oj='xzy', sao='zup', zso=True)
-            else:
-                cmds.joint(joint, e=True, oj='none', zso=True)
 
         # parent control
         for n, grp in enumerate(reversed(self.ik_group)):
@@ -313,3 +321,37 @@ class Foot_Module:
             foot_in_clp,
             foot_out_clp
         ])
+
+    def create_fk_foot(self):
+        # create control
+        for n, joint in enumerate(self.fk_joint):
+            ctrl, curve, grp, offset, ctrl_joint = create_control(
+                shape='circleX',
+                name=joint.rpartition('_')[0],
+            )
+
+            # set position
+            match_transform(ref=joint, target=grp)
+
+            # create constraint
+            mlm = matrix_constraint(parent=ctrl, target=joint)
+
+            # add object to list
+            self.transfrom = extend_list(self.transfrom, [grp, ctrl])
+            self.fk_control = append_list(self.fk_control, ctrl)
+            self.shapes = append_list(self.shapes, curve)
+            self.fk_group = append_list(self.fk_group, grp)
+            self.other_nodes = append_list(self.other_nodes, mlm)
+
+            # parent control
+            if not n == 0:
+                cmds.parent(grp, self.fk_control[n-1])
+
+    def ik_fk_switch(self):
+        self.switch.ik_fk_switch(
+            self.main_joint,
+            self.ik_joint,
+            self.fk_joint,
+            self.ik_control,
+            self.fk_control
+        )
