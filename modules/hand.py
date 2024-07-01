@@ -4,7 +4,7 @@ from tools.list_lib import append_list, extend_list
 from tools.create_control import create_control
 from tools.matrix_constraint import matrix_constraint
 from tools.transform_lib import match_transform
-from tools.joint_lib import orient_joint
+from tools.joint_lib import simple_joint_chain
 
 
 class Foot_Module:
@@ -108,22 +108,11 @@ class Foot_Module:
                     cmds.parent(loc, self.guide_list[n-1])
 
     def create_ik_chain(self, guide_list):
-        for n, guide in enumerate(guide_list):
-            # create joint
-            joint = create_node('joint', n=guide.replace('loc', 'ik_jnt'))
+        # create joint chain
+        ik_joint_list = simple_joint_chain(guide_list)
 
-            # set joint position
-            match_transform(ref=guide, target=joint)
-
-            # add joint to list
-            self.ik_joint = append_list(self.ik_joint, joint)
-
-            # parent joint
-            if not n == 0:
-                cmds.parent(joint, self.ik_joint[n-1])
-
-        # orient joints
-        orient_joint(self.ik_joint)
+        # add joint to list
+        self.ik_joint = extend_list(self.ik_joint, ik_joint_list)
 
         # ik handle
         ik_handle, temp = cmds.ikHandle(
@@ -159,25 +148,16 @@ class Foot_Module:
         ])
 
     def create_fk_chain(self, guide_list):
-        for n, guide in enumerate(guide_list):
-            # create joint
-            joint = create_node('joint', n=guide.replace('loc', 'main_jnt'))
+        fk_ctrl_list = None
 
-            # set joint position
-            match_transform(ref=guide, target=joint)
+        # create joint chain
+        main_joint_list = simple_joint_chain(guide_list)
 
-            # add joint to list
-            self.ik_joint = append_list(self.main_joint, joint)
-
-            # parent joint
-            if not n == 0:
-                cmds.parent(joint, self.main_joint[n-1])
-
-        # orient joints
-        orient_joint(self.main_joint)
+        # add joint to list
+        self.main_joint = extend_list(self.main_joint, main_joint_list)
 
         # create control
-        for n, joint in enumerate(self.main_joint):
+        for n, joint in enumerate(main_joint_list):
             ctrl, curve, grp, offset, jnt = create_control(
                 name=joint.rpartition('_')[0],
                 shape='circleX'
@@ -193,14 +173,19 @@ class Foot_Module:
             self.fk_control = append_list(self.fk_control, ctrl)
             self.fk_group = append_list(self.fk_group, grp)
 
+            fk_ctrl_list = append_list(fk_ctrl_list, ctrl)
+
             # parent control
             if not n == 0:
-                cmds.parent(grp, self.fk_control[n-1])
+                cmds.parent(grp, fk_ctrl_list[n-1])
 
         # constraint joint to ctrl
-        for joint, ctrl in zip(self.main_joint, self.fk_control):
+        for joint, ctrl in zip(main_joint_list, fk_ctrl_list):
             matrix_constraint(parent=ctrl, target=joint)
 
     def connect_chains(self):
-        for ik_jnt, fk_grp in zip(self.ik_joint, self.fk_group):
-            matrix_constraint(parent=ik_jnt, target=fk_grp)
+        for ik_jnt in self.ik_joint:
+            matrix_constraint(
+                parent=ik_jnt,
+                target=ik_jnt.replace('ik_jnt', 'fk_grp')
+            )
