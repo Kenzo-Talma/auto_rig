@@ -10,39 +10,31 @@ from tools.joint_lib import simple_joint_chain
 class Chain_Module:
     # init method
     def __init__(
-            self,
-            switch,
-            space_input_list,
-            data_input_list,
-            name,
-            side,
-            fk=True,
-            ik=True,
-            chain_lenght=3,
-            compound_name=None,
+            self
     ):
         # inputs
-        self.switch = switch
-        self.space_input_list = space_input_list
-        self.data_input_list = data_input_list
+        self.switch = None
+        self.space_input_dic = None
+        self.data_input_list = None
 
         # outputs
         self.space_output = None
         self.data_output = None
 
         # chain info
-        self.chain_length = chain_lenght
-        self.ik = ik
-        self.fk = fk
+        self.chain_length = 3
+        self.ik = True
+        self.fk = True
 
         # def name
-        self.name = name
-        self.side = side
+        self.name = 'chain_1'
+        self.side = 'C'
+        self.compound_name = None
 
-        if compound_name:
-            self.full_name = f'{side}_{compound_name}_{name}'
+        if self.compound_name:
+            self.full_name = f'{self.side}_{self.compound_name}_{self.name}'
         else:
-            self.full_name = f'{side}_{name}'
+            self.full_name = f'{self.side}_{self.name}'
 
         # module objects
         self.transfrom = None
@@ -61,6 +53,54 @@ class Chain_Module:
         self.ik_joint = None
         self.fk_joint = None
         self.main_joint = None
+
+    def remove_input_list(self, input, input_key):
+        # get space input list
+        input_list = self.space_input_dic[input_key]
+
+        # remove input from list
+        input_list.remove(input)
+
+        # return list
+        self.space_input_dic[input_key] = input_list
+
+    def add_space_input(self, input, input_key):
+        # get space input list
+        input_list = self.space_input_dic[input_key]
+
+        # add input to list
+        input_list = append_list(input_list, input)
+
+        # return list
+        self.space_input_dic[input_key] = input_list
+
+    def add_space_input_dic(self):
+        # chain length list
+        if not self.chain_length == 0:
+            # create space input dic if it don't exist
+            if not self.add_space_input_dic:
+                self.space_input_dic = {}
+
+            # chain loop
+            for i in range(self.chain_length):
+                # chack if key exist
+                if f'{self.full_name}_{str(i)}_main_jnt' \
+                        in self.space_input_dic:
+                    # add entry
+                    self.space_input_dic[f'{self.full_name}\
+                                        _{str(i)}_main_jnt'] = None
+        # remove dic if chain length = 0
+        else:
+            self.space_input_dic = None
+
+    def add_space_output(self):
+        # chain loop
+        for i in range(self.chain_length):
+            # add object to list
+            self.space_output = append_list(
+                self.space_output,
+                f'{self.full_name}_{str(i)}_main_jnt'
+            )
 
     def create_guides(self):
         for i in range(self.chain_length):
@@ -139,19 +179,16 @@ class Chain_Module:
 
     def create_ik_fk_switch(self):
         # create main limb
-        for guide in self.guide_list:
-            # create joint
-            joint = create_node('joint', n=guide.replace('loc', 'main_jnt'))
+        self.main_joint = simple_joint_chain(
+            self.guide_list,
+            extention=['loc', 'main_jnt']
+        )
 
-            # add joint to list
-            self.joint = append_list(self.joint, joint)
-            self.main_joint = append_list(self.main_joint, joint)
-
-            # add switch
-            self.switch.ik_fk_switch(
-                self.main_joint,
-                self.ik_joint,
-                self.fk_joint,
-                self.ik_control,
-                self.fk_control
-            )
+        # add switch
+        self.switch.ik_fk_switch(
+            self.main_joint,
+            self.ik_joint,
+            self.fk_joint,
+            self.ik_control,
+            self.fk_control
+        )

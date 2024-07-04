@@ -11,37 +11,30 @@ from tools.joint_lib import simple_joint_chain
 class Foot_Module:
     # init method
     def __init__(
-            self,
-            switch,
-            space_input_list,
-            data_input_list,
-            name,
-            side,
-            fk=True,
-            ik=True,
-            compound_name=None,
+            self
     ):
         # inputs
-        self.switch = switch
-        self.space_input_list = space_input_list
-        self.data_input_list = data_input_list
+        self.switch = None
+        self.space_input_list = None
+        self.data_input_list = None
 
         # outputs
         self.space_output = None
         self.data_output = None
 
         # foot info
-        self.ik = ik
-        self.fk = fk
+        self.ik = True
+        self.fk = True
 
         # def name
-        self.name = name
-        self.side = side
+        self.name = 'foot_1'
+        self.side = 'C'
+        self.compound_name = None
 
-        if compound_name:
-            self.full_name = f'{side}_{compound_name}_{name}'
+        if self.compound_name:
+            self.full_name = f'{self.side}_{self.compound_name}_{self.name}'
         else:
-            self.full_name = f'{side}_{name}'
+            self.full_name = f'{self.side}_{self.name}'
 
         # module objects
         self.transfrom = None
