@@ -3,6 +3,7 @@ from tools.attr_lib import edit_attr, connect_attr, add_attr
 from tools.create_control import create_control
 from tools.list_lib import append_list, extend_list
 from tools.create_node import create_node
+from tools.space_switch import space_switch
 
 
 class Switch_Module:
@@ -204,3 +205,22 @@ class Switch_Module:
         )
 
         return attribute
+
+    def create_space_switch(
+        self,
+        follow_parent='world',
+        parent_list=None,
+        target_list=None,
+        attribute_name=None,
+        attribute_list=None,
+        skip_list=None
+    ):
+        space_switch(
+            follow_parent=follow_parent,
+            parent_list=parent_list,
+            target_list=target_list,
+            control=self.control,
+            attribute_name=attribute_name,
+            attribute_list=attribute_list,
+            skip_list=skip_list
+        )

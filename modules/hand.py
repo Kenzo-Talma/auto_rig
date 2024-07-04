@@ -10,35 +10,29 @@ from tools.joint_lib import simple_joint_chain
 class Foot_Module:
     # init method
     def __init__(
-            self,
-            switch,
-            space_input_list,
-            data_input_list,
-            name,
-            side,
-            ik=True,
-            compound_name=None,
+            self
     ):
         # inputs
-        self.switch = switch
-        self.space_input_list = space_input_list
-        self.data_input_list = data_input_list
+        self.switch = None
+        self.space_input_list = None
+        self.data_input_list = None
 
         # outputs
         self.space_output = None
         self.data_output = None
 
         # hand info
-        self.ik = ik
+        self.ik = True
 
         # def name
-        self.name = name
-        self.side = side
+        self.name = 'hand_1'
+        self.side = 'C'
+        self.compound_name = None
 
-        if compound_name:
-            self.full_name = f'{side}_{compound_name}_{name}'
+        if self.compound_name:
+            self.full_name = f'{self.side}_{self.compound_name}_{self.name}'
         else:
-            self.full_name = f'{side}_{name}'
+            self.full_name = f'{self.side}_{self.name}'
 
         # module objects
         self.transfrom = None
@@ -92,6 +86,17 @@ class Foot_Module:
         self.fk_group = None
 
         self.main_joint = None
+
+    def add_space_input(self, input):
+        self.data_input_list = [input]
+
+    def add_space_output(self):
+        for finger_dic in self.guide_dic:
+            for guide in finger_dic:
+                self.space_output = append_list(
+                    self.space_output,
+                    guide.replace('loc', 'main_jnt')
+                )
 
     def create_guides(self):
         for guide_dic in self.guide_dic:

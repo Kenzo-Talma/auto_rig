@@ -8,41 +8,32 @@ from tools.list_lib import append_list, extend_list
 class Ribbon_Module:
     # init method
     def __init__(
-            self,
-            switch,
-            space_input_list,
-            data_input_list,
-            name,
-            side,
-            compound_name=None,
-            control_number=3,
-            joint_number=5,
-            periodic=False,
-            strechy=True
+            self
     ):
         # inputs
-        self.switch = switch
-        self.space_input_list = space_input_list
-        self.data_input_list = data_input_list
+        self.switch = None
+        self.space_input_list = None
+        self.data_input_list = None
 
         # outputs
         self.space_output = None
         self.data_output = None
 
         # def name
-        self.name = name
-        self.side = side
+        self.name = 'ribbon_1'
+        self.side = 'C'
+        self.compound_name = None
 
-        if compound_name:
-            self.full_name = f'{side}_{compound_name}_{name}'
+        if self.compound_name:
+            self.full_name = f'{self.side}_{self.compound_name}_{self.name}'
         else:
-            self.full_name = f'{side}_{name}'
+            self.full_name = f'{self.side}_{self.name}'
 
         # ribbon parameters
-        self.control_number = control_number
-        self.joint_number = joint_number
-        self.periodic = periodic
-        self.strechy = strechy
+        self.control_number = 3
+        self.joint_number = 5
+        self.periodic = False
+        self.strechy = True
 
         # module objects
         self.transfrom = None
@@ -57,6 +48,22 @@ class Ribbon_Module:
         self.orig_surface = None
         self.ribbon_joint = None
         self.control_joint = None
+
+    def remove_input_list(self, input):
+        self.space_input_list.remove(input)
+
+    def add_space_input(self, input):
+        self.space_input_list = append_list(
+            self.space_input_list,
+            input
+        )
+
+    def add_space_ouput(self):
+        for i in range(self.joint_number):
+            self.space_output = append_list(
+                self.space_output,
+                f'{self.full_name}_{str(1)}_jnt'
+            )
 
     def build_surface(self):
         if self.periodic:
