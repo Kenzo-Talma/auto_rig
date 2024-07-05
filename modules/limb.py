@@ -10,16 +10,14 @@ from tools.space_switch import space_switch
 
 class Limb_Module:
     # init method
-    def __init__(
-            self
-    ):
+    def __init__(self):
         # inputs
         self.switch = None
-        self.space_input_dic = {
+        self.space_input = {
             'limb_start_input': None,
             'limb_end_input': None
         }
-        self.data_input_dic = {}
+        self.data_input = {}
 
         # outputs
         self.space_output = None
@@ -63,23 +61,23 @@ class Limb_Module:
 
     def add_start_input(self, space_input_added):
         # get start space input list
-        start_input_list = self.space_input_dic['limb_start_input']
+        start_input_list = self.space_input['limb_start_input']
 
         # add object to list
         start_input_list = append_list(start_input_list, space_input_added)
 
         # return list
-        self.space_input_dic['limb_start_input'] = start_input_list
+        self.space_input['limb_start_input'] = start_input_list
 
     def add_end_input(self, space_input_added):
         # get end space input list
-        end_input_list = self.space_input_dic['limb_end_input']
+        end_input_list = self.space_input['limb_end_input']
 
         # add object to list
         end_input_list = append_list(end_input_list, space_input_added)
 
         # return list
-        self.space_input_dic['limb_end_input'] = end_input_list
+        self.space_input['limb_end_input'] = end_input_list
 
     def add_space_ouput(self):
         for i in range(self.limb_length):
@@ -230,7 +228,7 @@ class Limb_Module:
     def connect_space_inputs(self):
         # connect start
         # get data list
-        start_list = self.space_input_dic['limb_start_input']
+        start_list = self.space_input['limb_start_input']
         main_parent = start_list[0]
         start_list.remove(main_parent)
 
@@ -246,7 +244,7 @@ class Limb_Module:
 
         # connect start
         # get data list
-        end_list = self.space_input_dic['limb_end_input']
+        end_list = self.space_input['limb_end_input']
         main_parent = end_list[0]
         end_list.remove(main_parent)
 

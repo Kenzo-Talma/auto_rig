@@ -7,15 +7,13 @@ from tools.transform_lib import match_transform
 from tools.joint_lib import simple_joint_chain
 
 
-class Foot_Module:
+class Hand_Module:
     # init method
-    def __init__(
-            self
-    ):
+    def __init__(self):
         # inputs
         self.switch = None
-        self.space_input_list = None
-        self.data_input_list = None
+        self.space_input = None
+        self.data_input = None
 
         # outputs
         self.space_output = None
@@ -88,7 +86,7 @@ class Foot_Module:
         self.main_joint = None
 
     def add_space_input(self, input):
-        self.data_input_list = [input]
+        self.space_input = [input]
 
     def add_space_output(self):
         for finger_dic in self.guide_dic:

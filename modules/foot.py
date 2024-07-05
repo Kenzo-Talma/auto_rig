@@ -15,8 +15,8 @@ class Foot_Module:
     ):
         # inputs
         self.switch = None
-        self.space_input_list = None
-        self.data_input_list = None
+        self.space_input = None
+        self.data_input = None
 
         # outputs
         self.space_output = None

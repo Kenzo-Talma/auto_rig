@@ -12,8 +12,8 @@ class Ribbon_Module:
     ):
         # inputs
         self.switch = None
-        self.space_input_list = None
-        self.data_input_list = None
+        self.space_input = None
+        self.data_input = None
 
         # outputs
         self.space_output = None
@@ -50,11 +50,11 @@ class Ribbon_Module:
         self.control_joint = None
 
     def remove_input_list(self, input):
-        self.space_input_list.remove(input)
+        self.space_input.remove(input)
 
     def add_space_input(self, input):
-        self.space_input_list = append_list(
-            self.space_input_list,
+        self.space_input = append_list(
+            self.space_input,
             input
         )
 
@@ -88,7 +88,7 @@ class Ribbon_Module:
                     d=3,
                     n=self.full_name+'_nbs',
                     u=1,
-                    v=len(self.space_input_list)-1
+                    v=len(self.space_input)-1
                 )
 
         # create orig shape
@@ -335,7 +335,7 @@ class Ribbon_Module:
     def skin_surface(self):
         if not self.control_joint:
             # create control joints
-            for n, input in enumerate(self.data_input_list):
+            for n, input in enumerate(self.data_input):
                 # create joint
                 joint = create_node('joint', n=input.rpartition('.')[0]+'_jnt')
 

@@ -17,8 +17,8 @@ class Switch_Module:
             compound_name=None,
     ):
         # inputs
-        self.space_input_list = space_input_list
-        self.data_input_list = data_input_list
+        self.space_input = space_input_list
+        self.data_input = data_input_list
 
         # outputs
         self.space_output = None
@@ -65,7 +65,7 @@ class Switch_Module:
     # attach switch to any tranform or joint
     def attach_switch(self, offset=[0, 0, 0]):
         connect_attr(
-            self.space_input_list[0],
+            self.space_input[0],
             self.transfrom[0]+'.offsetParentMatrix',
             f=True
         )

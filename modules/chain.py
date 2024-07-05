@@ -14,8 +14,8 @@ class Chain_Module:
     ):
         # inputs
         self.switch = None
-        self.space_input_dic = None
-        self.data_input_list = None
+        self.space_input = None
+        self.data_input = None
 
         # outputs
         self.space_output = None
@@ -56,42 +56,42 @@ class Chain_Module:
 
     def remove_input_list(self, input, input_key):
         # get space input list
-        input_list = self.space_input_dic[input_key]
+        input_list = self.space_input[input_key]
 
         # remove input from list
         input_list.remove(input)
 
         # return list
-        self.space_input_dic[input_key] = input_list
+        self.space_input[input_key] = input_list
 
     def add_space_input(self, input, input_key):
         # get space input list
-        input_list = self.space_input_dic[input_key]
+        input_list = self.space_input[input_key]
 
         # add input to list
         input_list = append_list(input_list, input)
 
         # return list
-        self.space_input_dic[input_key] = input_list
+        self.space_input[input_key] = input_list
 
     def add_space_input_dic(self):
         # chain length list
         if not self.chain_length == 0:
             # create space input dic if it don't exist
             if not self.add_space_input_dic:
-                self.space_input_dic = {}
+                self.space_input = {}
 
             # chain loop
             for i in range(self.chain_length):
                 # chack if key exist
                 if f'{self.full_name}_{str(i)}_main_jnt' \
-                        in self.space_input_dic:
+                        in self.space_input:
                     # add entry
-                    self.space_input_dic[f'{self.full_name}\
+                    self.space_input[f'{self.full_name}\
                                         _{str(i)}_main_jnt'] = None
         # remove dic if chain length = 0
         else:
-            self.space_input_dic = None
+            self.space_input = None
 
     def add_space_output(self):
         # chain loop
