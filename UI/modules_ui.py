@@ -6,7 +6,7 @@ from PySide2 import QtCore, \
     # QtGui,
 import shiboken2
 # import importlib
-from modules.module_reader import Reader_Module
+# from modules.module_reader import Reader_Module
 
 
 def maya_main_window():
@@ -27,7 +27,20 @@ class Module_Win(QtWidgets.QDialog):
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
         # init functions
-        self.module_info = self.module_read(module)
+        # test
+        self.module_info = {
+            'inputs': {
+                'data_input': None,
+                'space_input_type': list,
+                'space_input': ['test1', 'test2', 'test3']
+            },
+            'outputs': {
+                'data_ouput': None,
+                'space_ouput_type': None,
+                'space_ouput': None
+            }
+        }
+        # self.module_info = self.module_read(module)
         self.create_ui()
 
     def create_ui(self):
@@ -47,39 +60,65 @@ class Module_Win(QtWidgets.QDialog):
 
         if space_input_type == list:
             self.space_input_index = 0
-            space_input_ui = self.create_list_ui()
+            space_input_ui = self.create_list_ui(len(self.space_input))
 
-        self.main_layout.addLayout(space_input_ui)
+        self.main_layout.addWidget(space_input_ui)
 
         # add main layout to main widget
         self.main_widget.setLayout(self.main_layout)
 
-    def create_list_ui(self):
+    def create_list_ui(self, input_number):
         # create list layout
         list_layout = QtWidgets.QVBoxLayout(self)
+        button_layout = QtWidgets.QVBoxLayout(self)
+        input_layout = QtWidgets.QVBoxLayout(self)
+
+        # create input widget
+        input_widget = QtWidgets.QWidget(self)
+
+        # create scroll area
+        input_scroll_area = QtWidgets.QScrollArea(self)
+        input_scroll_area.setWidgetResizable(True)
 
         # create dic
-        self.add_space_input_func(
-            list_layout, f'space input {self.space_input_index}'
-        )
+        for i in range(input_number-1):
+            self.add_space_input_func(
+                list_layout,
+                f'space input {self.space_input_index}'
+            )
 
         # create add button
         add_line_button = QtWidgets.QPushButton('add space input')
         add_line_button.clicked.connect(
-            self.add_space_input_func(list_layout)
-        )
-        add_line_button.clicked.connect(
-            self.increment_space_input_index()
+            lambda check=None,
+            layout=list_layout,
+            attribute=f'space input {self.space_input_index}':
+            self.add_space_input_func(
+                layout=layout,
+                attribute=attribute
+            )
         )
 
+        button_layout.addWidget(add_line_button)
+
+        # add to input layout
+        input_layout.addLayout(list_layout)
+        input_layout.addLayout(button_layout)
+
+        # add to input widget
+        input_widget.setLayout(input_layout)
+
+        # add to input scroll area
+        input_scroll_area.setWidget(input_widget)
+
         # return layout
-        return list_layout
+        return input_scroll_area
 
     # def create_dic_ui(self):
 
     def module_read(self, module):
         # create reader object
-        self.reader_module = Reader_Module(module)
+        # self.reader_module = Reader_Module(module)
 
         # get data
         self.reader_module.get_space_input
@@ -125,6 +164,9 @@ class Module_Win(QtWidgets.QDialog):
         # add line lyout to list layout
         layout.addLayout(line_layout)
 
+        # increment spaceinput index
+        self.increment_space_input_index()
+
     def increment_space_input_index(self):
         self.space_input_index += 1
 
@@ -134,5 +176,5 @@ class Module_Win(QtWidgets.QDialog):
 ##############################################################################
 
 
-d = Module_Win()
+d = Module_Win(None)
 d.show()
