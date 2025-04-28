@@ -1,0 +1,29 @@
+{
+    "module_name": null,
+    "module_type": null,
+    "space": {
+        "space_input": {
+            "input_type": null,
+            "input_dic": null
+        },
+        "space_output": {
+            "output_type": null,
+            "output_dic": null
+        }
+    },
+    "data": {
+        "data_input": {
+            "input_type": null,
+            "input_plugs": null
+        },
+        "data_output": {
+            "output_type": null,
+            "output_plugs": null
+        }
+    },
+    "nodes": null,
+    "attributes": null,
+    "module_input": null,
+    "module_output": null,
+    "param": null
+}
